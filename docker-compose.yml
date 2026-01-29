@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:15
+    container_name: pathfinding_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crowd_pathfinding
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: pathfinding_app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Protegge i moduli installati nel container
+    environment:
+      - DB_URL=postgres://user:password@db:5432/crowd_pathfinding
+      - JWT_SECRET=cambiami_per_l_esame_2025
+    depends_on:
+      - db
