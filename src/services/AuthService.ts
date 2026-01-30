@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     // 3. Se è tutto corretto, generiamo il Token JWT usando il nostro Helper
-    const token = AuthHelper.generateToken(user.id, user.email);
+    const token = AuthHelper.generateToken(user.id, user.email, user.role);
 
     // 4. Restituiamo il token e i dati base dell'utente
     return {

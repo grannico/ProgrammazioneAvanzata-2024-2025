@@ -1,32 +1,27 @@
+// src/patterns/CostFactory.ts
+
 export enum OperationType {
-  CREATE = 'CREATE',
+  CREATION = 'CREATION',
   UPDATE = 'UPDATE',
-  EXECUTE = 'EXECUTE'
+  EXECUTION = 'EXECUTION'
 }
 
 export class CostFactory {
-  /**
-   * Restituisce il costo per cella in base al tipo di operazione.
-   * Pattern: Factory Method (variante semplice)
-   */
-  private static getRate(type: OperationType): number {
-    switch (type) {
-      case OperationType.CREATE:
-        return 0.05;
-      case OperationType.UPDATE:
-        return 0.35;
-      case OperationType.EXECUTE:
-        return 0.05;
-      default:
-        throw new Error('Tipo di operazione non riconosciuto');
-    }
-  }
+  // Definiamo i costi come da specifiche
+  private static readonly RATES = {
+    [OperationType.CREATION]: 0.05, // 0.05 * numero celle
+    [OperationType.UPDATE]: 0.35,   // 0.35 per cella aggiornata
+    [OperationType.EXECUTION]: 0.05 // Costa come la creazione
+  };
 
   /**
-   * Calcola il costo totale arrotondato a 2 decimali.
+   * Calcola il costo totale di un'operazione
+   * @param type Tipo di operazione (CREATION, UPDATE, EXECUTION)
+   * @param units Numero di unità (celle totali o celle modificate)
    */
-  public static calculate(type: OperationType, cellCount: number): number {
-    const rate = this.getRate(type);
-    return parseFloat((rate * cellCount).toFixed(2));
+  public static calculate(type: OperationType, units: number): number {
+    const rate = this.RATES[type];
+    // Arrotondiamo a 2 decimali per evitare problemi di precisione dei float
+    return Math.round((units * rate) * 100) / 100;
   }
 }

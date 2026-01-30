@@ -4,11 +4,7 @@ import { AuthController } from '../controllers/AuthController';
 
 const router = Router();
 
-/**
- * Rotta per la registrazione
- * Quando qualcuno invia una POST a /register, 
- * eseguiamo il metodo register del nostro AuthController
- */
+// Solo login e registrazione
 router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 
