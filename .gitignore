@@ -1,3 +1,15 @@
+# Dipendenze
 node_modules/
+
+# Compilazione
 dist/
+
+# Variabili d'ambiente (SENSITIVE!)
 .env
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db

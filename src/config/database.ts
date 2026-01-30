@@ -1,6 +1,9 @@
 import { Sequelize } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import { User } from '../models/User';
+import { Grid } from '../models/Grid';
+import { GridVersion } from '../models/GridVersion';
+import { UpdateRequest } from '../models/UpdateRequest';
 
 dotenv.config();
 
@@ -15,7 +18,7 @@ class Database {
         dialect: 'postgres',
         logging: false,
         // Qui aggiungeremo i modelli più avanti
-        models: [User], 
+        models: [User, Grid, GridVersion, UpdateRequest], 
       });
       console.log('✅ Istanza Sequelize creata (Singleton)');
     }

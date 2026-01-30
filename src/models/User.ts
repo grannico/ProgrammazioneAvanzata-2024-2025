@@ -20,8 +20,12 @@ export class User extends Model {
   password!: string;
 
   @Default('USER')
-  @Column(DataType.ENUM('ADMIN', 'USER'))
-  role!: 'ADMIN' | 'USER';
+  @Column({
+  type: DataType.ENUM('USER', 'ADMIN'),
+  defaultValue: 'USER', // Di default, chi si registra è un utente semplice
+  allowNull: false
+})
+role!: 'USER' | 'ADMIN';
 
   @Default(100.0) // Saldo iniziale di cortesia
   @AllowNull(false)
