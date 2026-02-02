@@ -62,7 +62,8 @@ export class AdminController {
         throw new BadRequestError('L\'importo della ricarica deve essere superiore a zero');
       }
 
-      const user = await AdminService.rechargeUser(email, amount);
+      // Estraiamo l'utente e l'importo effettivamente applicato (arrotondato) dal Service
+      const { user, appliedAmount } = await AdminService.rechargeUser(email, amount);
 
       // 4. Gestione utente non trovato
       if (!user) {
@@ -71,7 +72,8 @@ export class AdminController {
 
       res.status(200).json({
         status: 'SUCCESS',
-        message: `Ricarica di ${amount} token completata per ${email}`,
+        // Ora il messaggio usa appliedAmount invece del valore grezzo del body
+        message: `Ricarica di ${appliedAmount} token completata per ${email}`,
         data: {
           email: user.email,
           newBalance: user.tokenBalance

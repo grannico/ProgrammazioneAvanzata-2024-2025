@@ -30,6 +30,10 @@ export class AdminService {
    * Ricarica il bilancio token di un utente (Addizione)
    */
   public static async rechargeUser(email: string, amount: number) {
+
+    // Arrotondiamo l'importo a 2 decimali per evitare decimali infiniti binari
+    const cleanAmount = Math.round(amount * 100) / 100;
+
     // 1. Cerchiamo l'utente
     const user = await UserDAO.findByEmail(email);
 
@@ -38,16 +42,25 @@ export class AdminService {
     }
 
     // 2. Usiamo il metodo ATOMICO addTokens (fa Balance + Amount nel DB)
-    // Questo evita i problemi di concorrenza!
-    await UserDAO.addTokens(user.id, amount);
+    // NOTA: Usiamo cleanAmount invece di amount per salvare dati puliti nel DB!
+    await UserDAO.addTokens(user.id, cleanAmount);
 
     // 3. Recuperiamo l'utente aggiornato per mostrare il nuovo saldo
     const updatedUser = await UserDAO.findById(user.id);
+    
+    if (updatedUser) {
+      // Arrotondiamo il valore recuperato per sicurezza prima della risposta JSON
+      updatedUser.tokenBalance = Math.round(updatedUser.tokenBalance * 100) / 100;
+    }
     
     // Non dovrebbe mai essere null dato che lo abbiamo appena aggiornato, 
     // ma lo gestiamo per far felice TypeScript
     if (!updatedUser) throw new NotFoundError('Errore nel recupero dell\'utente aggiornato');
 
-    return updatedUser;
+    // Restituiamo sia l'utente che l'importo arrotondato applicato
+    return {
+      user: updatedUser,
+      appliedAmount: cleanAmount
+    };
   }
 }
