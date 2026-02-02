@@ -14,6 +14,7 @@ export class Grid extends Model {
   name!: string;
 
   @ForeignKey(() => User)
+  @AllowNull(false)
   @Column(DataType.INTEGER)
   creatorId!: number;
 

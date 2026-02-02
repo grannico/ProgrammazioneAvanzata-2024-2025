@@ -4,10 +4,13 @@ import { UserService } from '../services/UserService';
 export class UserController {
   public static async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.user!.id; // Preso dal token via isAuth
+      const userId = req.user!.id; 
       const user = await UserService.getUserProfile(userId);
       
-      res.json(user);
+      res.status(200).json({
+        status: 'SUCCESS',
+        data: user
+      });
     } catch (error) {
       next(error);
     }
