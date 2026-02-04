@@ -1,36 +1,110 @@
-import { UpdateRequest } from '../models/UpdateRequest';
-import { User } from '../models/User';
+import { UpdateRequest } from '../models/UpdateRequest'; // Il tuo modello Sequelize
+import { Grid } from '../models/Grid';
+import { Op } from 'sequelize';
 
 export class UpdateDAO {
+
   /**
-   * Crea una nuova richiesta di modifica cella
+   * SALVATAGGIO NUOVA PROPOSTA (Metodo necessario per UpdateService)
    */
   public static async createRequest(data: any, transaction?: any) {
     return await UpdateRequest.create(data, { transaction });
   }
 
   /**
-   * Trova una richiesta specifica per ID
+   * Recupera aggiornamenti filtrati per GRID, STATO e DATE
    */
-  public static async findById(id: number) {
-    return await UpdateRequest.findByPk(id);
-  }
+  public static async findByGridWithFilters(
+    gridId: number, 
+    status?: string, 
+    startDate?: Date, // Accettiamo Date già processate dall'helper
+    endDate?: Date
+  ) {
+    const whereCondition: any = { gridId };
 
-  /**
-   * Recupera tutte le richieste PENDING per una specifica griglia
-   * Utile per il proprietario che deve revisionarle
-   */
-  public static async findPendingByGrid(gridId: number) {
+    // Filtro per stato (Accettato/Rigettato)
+    if (status) {
+      whereCondition.status = status;
+    }
+
+    // Filtro per data (inferiore, superiore, compresa)
+    if (startDate || endDate) {
+      whereCondition.createdAt = {};
+      if (startDate) {
+        whereCondition.createdAt[Op.gte] = startDate; 
+      }
+      if (endDate) {
+        // Creiamo una nuova istanza della data per non modificare l'originale
+        const endOfRange = new Date(endDate);
+        // Impostiamo l'orario alla fine del giorno (23:59:59.999)
+        // per includere tutte le modifiche avvenute durante la giornata
+        endOfRange.setHours(23, 59, 59, 999);
+        
+        whereCondition.createdAt[Op.lte] = endOfRange;   
+      }
+    }
+
     return await UpdateRequest.findAll({
-      where: { gridId, status: 'PENDING' },
-      include: [{ model: User, as: 'requester', attributes: ['email'] }]
+      where: whereCondition,
+      order: [['createdAt', 'DESC']]
     });
   }
 
   /**
-   * Aggiorna lo stato di una richiesta (ACCEPTED / REJECTED)
+   * Verifica se esiste almeno una richiesta PENDING per una griglia
    */
-  public static async updateStatus(id: number, status: 'ACCEPTED' | 'REJECTED', transaction?: any) {
+  public static async hasPendingRequests(gridId: number): Promise<boolean> {
+    const count = await UpdateRequest.count({
+      where: {
+        gridId,
+        status: 'PENDING'
+      }
+    });
+    return count > 0;
+  }
+
+  /**
+   * Tutte le richieste PENDING per i modelli di un certo PROPRIETARIO
+   */
+  public static async findPendingByOwner(ownerId: number) {
+    return await UpdateRequest.findAll({
+      where: { status: 'PENDING' },
+      include: [{
+        model: Grid,
+        as: 'grid',
+        where: { creatorId: ownerId } // Filtriamo le griglie che appartengono all'utente
+      }],
+      order: [['createdAt', 'ASC']]
+    });
+  }
+
+  /**
+   * Aggiornamento in BULK di più richieste (Approva/Rigetta)
+   */
+  public static async bulkUpdateStatus(ids: number[], newStatus: 'ACCEPTED' | 'REJECTED', transaction?: any) {
+    return await UpdateRequest.update(
+      { status: newStatus },
+      { 
+        where: { id: ids },
+        transaction 
+      }
+    );
+  }
+
+  /**
+   * Trova richieste specifiche per ID (utile per validazione prima del bulk)
+   */
+  public static async findByIds(ids: number[]) {
+    return await UpdateRequest.findAll({
+      where: { id: ids },
+      include: ['grid'] // Includiamo la griglia per controllare il proprietario nel Service
+    });
+  }
+
+  /**
+   * Aggiornamento status singola richiesta (utile per il loop di approvazione)
+   */
+  public static async updateStatus(id: number, status: string, transaction?: any) {
     return await UpdateRequest.update({ status }, { where: { id }, transaction });
   }
 }

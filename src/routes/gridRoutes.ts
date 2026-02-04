@@ -22,17 +22,7 @@ router.get('/:id', GridController.show);
 // 3. Creazione di una nuova griglia (Costo: 0.05 * celle)
 router.post('/', GridController.create);
 
-// 4. Aggiornamento o proposta di modifica (Costo: 0.35 * celle modificate)
-router.post('/:id/update', GridController.updateGrid);
-
-// 5. Calcolo del percorso A* (Costo: 0.05 * celle totali)
+// 4. Calcolo del percorso A* (Costo: 0.05 * celle totali)
 router.post('/:id/path', PathfindingController.calculate);
-
-/**
- * --- COLLABORAZIONE (PATCH) ---
- */
-
-// 6. Approvazione di una modifica (Solo proprietario)
-router.patch('/requests/:requestId/approve', GridController.approveRequest);
 
 export default router;

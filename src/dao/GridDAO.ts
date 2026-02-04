@@ -44,10 +44,19 @@ export class GridDAO {
    * Crea una nuova versione per una griglia esistente
    */
   public static async createVersion(gridId: number, versionNumber: number, data: any, transaction?: any) {
-    return await GridVersion.create({
+    // 1. Creiamo il record della versione
+    const newVersion = await GridVersion.create({
       gridId,
       versionNumber,
       data
     }, { transaction });
+
+    // 2. Aggiorniamo la Griglia madre impostando questa come versione corrente
+    await Grid.update(
+      { currentVersionId: newVersion.id },
+      { where: { id: gridId }, transaction }
+    );
+
+    return newVersion;
   }
 }
