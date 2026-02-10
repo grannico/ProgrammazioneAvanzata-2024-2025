@@ -18,7 +18,7 @@ export class GridHelper {
         throw new BadRequestError(`Incoerenza alla riga ${i}: attese ${cols} colonne.`);
       }
 
-      // 3. Controllo valori (il famoso "pelo nell'uovo")
+      // 3. Controllo valori 
       for (let j = 0; j < currentRow.length; j++) {
         const cell = currentRow[j];
         if (cell !== 0 && cell !== 1) {
