@@ -1,16 +1,17 @@
 import { User } from '../models/User';
 import { Grid } from '../models/Grid';
-import { UpdateRequest } from '../models/UpdateRequest'; // Importato per gestire la cronologia
+import { CollaborationRequest } from '../models/CollaborationRequest'; 
 import { GridDAO } from '../dao/GridDAO'; 
 import { HashHelper } from '../helpers/hash.helper';
 import { sequelize } from '../config/database';
 
 export const runSeed = async () => {
   try {
+    // 1. Sincronizzazione e pulizia totale del database
     await sequelize.sync({ force: true });
     console.log('--- 🚀 Database resettato e sincronizzato ---');
 
-    // 1. Creazione Utenti
+    // 2. Creazione Utenti
     const hashedAdminPassword = await HashHelper.encrypt('admin123');
     const hashedUserPassword = await HashHelper.encrypt('user123');
 
@@ -28,7 +29,7 @@ export const runSeed = async () => {
 
     console.log('--- 👥 Utenti creati ---');
 
-    // 2. Creazione Griglie e Versioni (Almeno 3 modelli con 2 versioni ciascuno)
+    // 3. Creazione Griglie e Versioni (Almeno 3 modelli con 2 versioni ciascuno)
 
     // --- MODELLO 1: Mappa Industriale (Admin) ---
     const gridAdmin = await Grid.create({ name: 'Mappa Industriale', creatorId: admin.id });
@@ -49,7 +50,7 @@ export const runSeed = async () => {
     await GridDAO.createVersion(gridAdmin.id, 2, dataV2_Admin);
 
     // Registriamo l'aggiornamento nella cronologia come ACCEPTED
-    await UpdateRequest.create({
+    await CollaborationRequest.create({
       gridId: gridAdmin.id,
       requesterId: admin.id,
       status: 'ACCEPTED',
@@ -75,7 +76,7 @@ export const runSeed = async () => {
     await GridDAO.createVersion(gridNiccolo.id, 2, dataV2_Niccolo);
 
     // Registriamo l'aggiornamento nella cronologia come ACCEPTED
-    await UpdateRequest.create({
+    await CollaborationRequest.create({
       gridId: gridNiccolo.id,
       requesterId: user1.id,
       status: 'ACCEPTED',
@@ -95,7 +96,7 @@ export const runSeed = async () => {
     await GridDAO.createVersion(gridCollab.id, 2, obstacle5x5);
 
     // Registriamo questo aggiornamento come PENDING per testare i filtri di ricerca
-    await UpdateRequest.create({
+    await CollaborationRequest.create({
       gridId: gridCollab.id,
       requesterId: user2.id,
       status: 'PENDING',
@@ -104,7 +105,7 @@ export const runSeed = async () => {
       baseVersionId: 5 // Punta alla V1 della terza griglia
     });
 
-    console.log('--- 🗺️ Creati 3 modelli con 2 versioni e relativi record di Update ---');
+    console.log('--- 🗺️ Creati 3 modelli con 2 versioni e relativi record di CollaborationRequest ---');
     console.log('--- ✅ Seeding completato con successo! ---');
     process.exit(0);
   } catch (error) {
@@ -113,4 +114,5 @@ export const runSeed = async () => {
   }
 };
 
+// Esecuzione immediata dello script
 runSeed();

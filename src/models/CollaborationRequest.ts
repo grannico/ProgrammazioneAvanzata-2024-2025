@@ -3,8 +3,8 @@ import { User } from './User';
 import { Grid } from './Grid';
 import { GridVersion } from './GridVersion';
 
-@Table({ tableName: 'update_requests', timestamps: true })
-export class UpdateRequest extends Model {
+@Table({ tableName: 'collaboration_requests', timestamps: true }) // Rinominato da update_requests
+export class CollaborationRequest extends Model { // Rinominata da UpdateRequest
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)

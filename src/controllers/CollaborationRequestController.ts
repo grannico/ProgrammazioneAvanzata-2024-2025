@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { UpdateService } from '../services/UpdateService';
+import { CollaborationRequestService } from '../services/CollaborationRequestService'; // Rinominato da UpdateService
 import { BadRequestError, UnauthorizedError } from '../errors/AppError';
 
-export class UpdateController {
+export class CollaborationRequestController { // Rinominato da UpdateController
 
   /**
    * Elenco storico con filtri per data e stato
@@ -13,7 +13,7 @@ export class UpdateController {
       const { id } = req.params;
       const { status, startDate, endDate } = req.query;
 
-      const history = await UpdateService.getGridHistory(
+      const history = await CollaborationRequestService.getGridHistory( // Aggiornato riferimento Service
         Number(id),
         status as string,
         startDate as string,
@@ -37,7 +37,7 @@ export class UpdateController {
   public static async getStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const status = await UpdateService.checkGridStatus(Number(id));
+      const status = await CollaborationRequestService.checkGridStatus(Number(id)); // Aggiornato riferimento Service
 
       res.status(200).json({
         status: 'SUCCESS',
@@ -56,7 +56,7 @@ export class UpdateController {
     try {
       if (!req.user) throw new UnauthorizedError();
       
-      const pending = await UpdateService.getPendingForOwner(req.user.id);
+      const pending = await CollaborationRequestService.getPendingForOwner(req.user.id); // Aggiornato riferimento Service
 
       res.status(200).json({
         status: 'SUCCESS',
@@ -81,7 +81,7 @@ export class UpdateController {
         throw new BadRequestError('L\'azione deve essere ACCEPT o REJECT');
       }
 
-      const result = await UpdateService.processBulkRequests(
+      const result = await CollaborationRequestService.processBulkRequests( // Aggiornato riferimento Service
         req.user.id,
         requestIds,
         action as 'ACCEPT' | 'REJECT'
@@ -114,7 +114,7 @@ export class UpdateController {
       const userId = req.user.id;
       
       // Chiamiamo il metodo nel Service dedicato agli update
-      const result = await UpdateService.proposeOrUpdate(userId, Number(id), newData);
+      const result = await CollaborationRequestService.proposeOrUpdate(userId, Number(id), newData); // Aggiornato riferimento Service
 
       const message = result.status === 'UPDATED' 
         ? 'Griglia aggiornata istantaneamente (Proprietario)' 

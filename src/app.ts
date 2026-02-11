@@ -3,7 +3,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import adminRoutes from './routes/adminRoutes';
 import gridRoutes from './routes/gridRoutes';
-import updateRoutes from './routes/updateRoutes'; // <-- Importiamo le nuove rotte
+import collaborationrequestRoutes from './routes/collaborationrequestRoutes';
 import { isAuth } from './middlewares/auth.middleware';
 import { isAdmin } from './middlewares/isAdmin.middleware';
 import { errorMiddleware } from './middlewares/error.middleware';
@@ -22,9 +22,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', isAuth, userRoutes);
 app.use('/api/grids', isAuth, gridRoutes);
 
-// C. Rotte COLLABORAZIONE (Nuove rotte Updates)
-// Proteggiamo tutto il prefisso con isAuth
-app.use('/api/updates', isAuth, updateRoutes);
+// C. Rotte COLLABORAZIONE (Nuove rotte Collaboration Requests)
+// Proteggiamo tutto il prefisso con isAuth e usiamo il nuovo endpoint semantico
+app.use('/api/collaboration-requests', isAuth, collaborationrequestRoutes);
 
 // D. Rotte ADMIN
 app.use('/api/admin', isAuth, isAdmin, adminRoutes);

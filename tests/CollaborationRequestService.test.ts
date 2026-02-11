@@ -1,13 +1,13 @@
-import { UpdateService } from '../src/services/UpdateService';
+import { CollaborationRequestService } from '../src/services/CollaborationRequestService'; // Rinominato da UpdateService
 import { GridDAO } from '../src/dao/GridDAO';
-import { UpdateDAO } from '../src/dao/UpdateDAO';
+import { CollaborationRequestDAO } from '../src/dao/CollaborationRequestDAO'; // Rinominato da UpdateDAO
 import { UserDAO } from '../src/dao/UserDAO';
 import { sequelize } from '../src/config/database';
 
 // 1. MOCK DEI DAO E DI SEQUELIZE
 // Diciamo a Jest di sostituire i moduli reali con versioni "finte"
 jest.mock('../src/dao/GridDAO');
-jest.mock('../src/dao/UpdateDAO');
+jest.mock('../src/dao/CollaborationRequestDAO'); // Aggiornato riferimento
 jest.mock('../src/dao/UserDAO');
 jest.mock('../src/config/database', () => ({
   sequelize: {
@@ -18,7 +18,7 @@ jest.mock('../src/config/database', () => ({
   },
 }));
 
-describe('UpdateService - proposeOrUpdate', () => {
+describe('CollaborationRequestService - proposeOrUpdate', () => { // Nome aggiornato
   
   // Dati di esempio per i test
   const mockGrid = {
@@ -46,12 +46,12 @@ describe('UpdateService - proposeOrUpdate', () => {
     (UserDAO.findById as jest.Mock).mockResolvedValueOnce(mockUser) // Per il primo controllo
                                    .mockResolvedValueOnce({ ...mockUser, tokenBalance: 90 }); // Per il bilancio finale
 
-    const result = await UpdateService.proposeOrUpdate(10, 1, newData);
+    const result = await CollaborationRequestService.proposeOrUpdate(10, 1, newData); // Usiamo CollaborationRequestService
 
     // VERIFICHE:
     expect(result.status).toBe('UPDATED');
     expect(GridDAO.createVersion).toHaveBeenCalled(); // Verifichiamo che sia stata creata una versione
-    expect(UpdateDAO.createRequest).not.toHaveBeenCalled(); // Non deve creare una richiesta pendente
+    expect(CollaborationRequestDAO.createRequest).not.toHaveBeenCalled(); // Non deve creare una richiesta pendente
   });
 
   // --- TEST CASO B: UN COLLABORATORE AGGIORNA ---
@@ -60,11 +60,11 @@ describe('UpdateService - proposeOrUpdate', () => {
     (GridDAO.findById as jest.Mock).mockResolvedValue(mockGrid);
     (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 20, tokenBalance: 100 });
 
-    const result = await UpdateService.proposeOrUpdate(20, 1, newData);
+    const result = await CollaborationRequestService.proposeOrUpdate(20, 1, newData); // Usiamo CollaborationRequestService
 
     // VERIFICHE:
     expect(result.status).toBe('PENDING_APPROVAL');
-    expect(UpdateDAO.createRequest).toHaveBeenCalled(); // Deve creare la richiesta
+    expect(CollaborationRequestDAO.createRequest).toHaveBeenCalled(); // Deve creare la richiesta
     expect(GridDAO.createVersion).not.toHaveBeenCalled(); // NON deve creare la versione subito
   });
 });

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { User } from '../models/User';
 import { Grid } from '../models/Grid';
 import { GridVersion } from '../models/GridVersion';
-import { UpdateRequest } from '../models/UpdateRequest';
+import { CollaborationRequest } from '../models/CollaborationRequest'; // Rinominato da UpdateRequest
 
 dotenv.config();
 
@@ -17,8 +17,8 @@ class Database {
       Database.instance = new Sequelize(process.env.DB_URL || 'postgres://user:password@localhost:5432/crowd_pathfinding', {
         dialect: 'postgres',
         logging: false,
-        // Qui aggiungeremo i modelli più avanti
-        models: [User, Grid, GridVersion, UpdateRequest], 
+        // Aggiornato l'array dei modelli con il nuovo nome della classe
+        models: [User, Grid, GridVersion, CollaborationRequest], 
       });
       console.log('✅ Istanza Sequelize creata (Singleton)');
     }

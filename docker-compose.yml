@@ -15,9 +15,8 @@ services:
     container_name: pathfinding_app
     ports:
       - "3000:3000"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules # Protegge i moduli installati nel container
+    # Abbiamo rimosso la sezione volumes per garantire che 
+    # l'app utilizzi solo il codice buildato dentro l'immagine.
     environment:
       - DB_URL=postgres://user:password@db:5432/crowd_pathfinding
       - JWT_SECRET=cambiami_per_l_esame_2025

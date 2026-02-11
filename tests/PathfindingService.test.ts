@@ -1,7 +1,7 @@
 import { PathfindingService } from '../src/services/PathfindingService';
 import { UserDAO } from '../src/dao/UserDAO';
 import { GridDAO } from '../src/dao/GridDAO';
-import { UnauthorizedError } from '../src/errors/AppError';
+import { BadRequestError, UnauthorizedError } from '../src/errors/AppError';
 import { sequelize } from '../src/config/database';
 
 // Mock dei DAO e di Sequelize
@@ -16,46 +16,69 @@ jest.mock('../src/config/database', () => ({
   },
 }));
 
-describe('PathfindingService - findPath (Token Logic)', () => {
+describe('PathfindingService - Logica Token, Ostacoli e Limiti', () => {
   
   const mockGrid = {
     id: 1,
     versions: [{ 
       id: 1, 
       versionNumber: 1, 
-      data: [[0, 0, 0], [0, 0, 0], [0, 0, 0]] // Griglia 3x3 (9 celle)
+      data: [
+        [0, 1, 0], // Ostacolo in [0, 1]
+        [0, 0, 0],
+        [0, 0, 0]
+      ] 
     }]
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (GridDAO.findById as jest.Mock).mockResolvedValue(mockGrid);
   });
 
+  // --- 1. TEST LOGICA TOKEN (Sempre necessari) ---
   it('Dovrebbe lanciare UnauthorizedError (401) se i token sono insufficienti', async () => {
-    // 1. MOCK: Griglia trovata
-    (GridDAO.findById as jest.Mock).mockResolvedValue(mockGrid);
-    
-    // 2. MOCK: Utente con SOLI 0.10 token (il costo per 9 celle a 0.05 è 0.45)
     (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 1, tokenBalance: 0.10 });
 
-    // 3. ESECUZIONE E VERIFICA
     await expect(
       PathfindingService.findPath(1, 1, [0, 0], [2, 2])
     ).rejects.toThrow(UnauthorizedError);
 
-    // Verifichiamo che non sia mai stato chiamato lo scalo dei token
     expect(UserDAO.deductTokens).not.toHaveBeenCalled();
   });
 
-  it('Dovrebbe permettere l\'esecuzione se i token sono sufficienti', async () => {
-    (GridDAO.findById as jest.Mock).mockResolvedValue(mockGrid);
+  it('Dovrebbe scalare i token correttamente se il saldo è sufficiente', async () => {
     (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 1, tokenBalance: 10.0 });
 
     const result = await PathfindingService.findPath(1, 1, [0, 0], [2, 2]);
 
-    // VERIFICHE
-    expect(result).toHaveProperty('path');
     expect(result.tokenCostApplied).toBe(0.45); // 9 celle * 0.05
     expect(UserDAO.deductTokens).toHaveBeenCalledWith(1, 0.45, expect.anything());
+  });
+
+  // --- 2. TEST OSTACOLI (Richiesta Prof) ---
+  it('Dovrebbe fallire se il punto di partenza o di arrivo è un ostacolo', async () => {
+    (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 1, tokenBalance: 100.0 });
+
+    await expect(
+      PathfindingService.findPath(1, 1, [0, 1], [2, 2]) // [0, 1] è un muro nel mock
+    ).rejects.toThrow('Il punto di partenza o di arrivo è un ostacolo');
+  });
+
+  // --- 3. TEST LIMITI E INDICI NEGATIVI (Richiesta Prof) ---
+  it('Dovrebbe fallire se si inserisce un indice negativo', async () => {
+    (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 1, tokenBalance: 100.0 });
+
+    await expect(
+      PathfindingService.findPath(1, 1, [-1, 0], [2, 2])
+    ).rejects.toThrow(/fuori dai limiti/);
+  });
+
+  it('Dovrebbe fallire se le coordinate sono oltre i confini della griglia', async () => {
+    (UserDAO.findById as jest.Mock).mockResolvedValue({ id: 1, tokenBalance: 100.0 });
+
+    await expect(
+      PathfindingService.findPath(1, 1, [0, 0], [3, 3]) // Griglia 3x3, indice 3 è out
+    ).rejects.toThrow(/fuori dai limiti/);
   });
 });

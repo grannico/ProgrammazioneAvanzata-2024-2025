@@ -1,14 +1,14 @@
-import { UpdateRequest } from '../models/UpdateRequest'; // Il tuo modello Sequelize
+import { CollaborationRequest } from '../models/CollaborationRequest';
 import { Grid } from '../models/Grid';
 import { Op } from 'sequelize';
 
-export class UpdateDAO {
+export class CollaborationRequestDAO { // Rinominato da UpdateDAO
 
   /**
-   * SALVATAGGIO NUOVA PROPOSTA (Metodo necessario per UpdateService)
+   * SALVATAGGIO NUOVA PROPOSTA (Metodo necessario per CollaborationRequestService)
    */
   public static async createRequest(data: any, transaction?: any) {
-    return await UpdateRequest.create(data, { transaction });
+    return await CollaborationRequest.create(data, { transaction });
   }
 
   /**
@@ -44,7 +44,7 @@ export class UpdateDAO {
       }
     }
 
-    return await UpdateRequest.findAll({
+    return await CollaborationRequest.findAll({
       where: whereCondition,
       order: [['createdAt', 'DESC']]
     });
@@ -54,7 +54,7 @@ export class UpdateDAO {
    * Verifica se esiste almeno una richiesta PENDING per una griglia
    */
   public static async hasPendingRequests(gridId: number): Promise<boolean> {
-    const count = await UpdateRequest.count({
+    const count = await CollaborationRequest.count({
       where: {
         gridId,
         status: 'PENDING'
@@ -67,7 +67,7 @@ export class UpdateDAO {
    * Tutte le richieste PENDING per i modelli di un certo PROPRIETARIO
    */
   public static async findPendingByOwner(ownerId: number) {
-    return await UpdateRequest.findAll({
+    return await CollaborationRequest.findAll({
       where: { status: 'PENDING' },
       include: [{
         model: Grid,
@@ -82,7 +82,7 @@ export class UpdateDAO {
    * Aggiornamento in BULK di più richieste (Approva/Rigetta)
    */
   public static async bulkUpdateStatus(ids: number[], newStatus: 'ACCEPTED' | 'REJECTED', transaction?: any) {
-    return await UpdateRequest.update(
+    return await CollaborationRequest.update(
       { status: newStatus },
       { 
         where: { id: ids },
@@ -95,7 +95,7 @@ export class UpdateDAO {
    * Trova richieste specifiche per ID (utile per validazione prima del bulk)
    */
   public static async findByIds(ids: number[]) {
-    return await UpdateRequest.findAll({
+    return await CollaborationRequest.findAll({
       where: { id: ids },
       include: ['grid'] // Includiamo la griglia per controllare il proprietario nel Service
     });
@@ -105,6 +105,6 @@ export class UpdateDAO {
    * Aggiornamento status singola richiesta (utile per il loop di approvazione)
    */
   public static async updateStatus(id: number, status: string, transaction?: any) {
-    return await UpdateRequest.update({ status }, { where: { id }, transaction });
+    return await CollaborationRequest.update({ status }, { where: { id }, transaction });
   }
 }

@@ -1,4 +1,4 @@
-import { UpdateDAO } from '../dao/UpdateDAO';
+import { CollaborationRequestDAO } from '../dao/CollaborationRequestDAO'; // Rinominato da UpdateDAO
 import { GridDAO } from '../dao/GridDAO';
 import { UserDAO } from '../dao/UserDAO';
 import { GridHelper } from '../helpers/grid.helper';
@@ -7,20 +7,20 @@ import { sequelize } from '../config/database';
 import { DateHelper } from '../helpers/date.helper';
 import { CostFactory, OperationType } from '../patterns/CostFactory';
 
-export class UpdateService {
+export class CollaborationRequestService { // Rinominato da UpdateService
 
   /**
    * Recupera tutte le richieste PENDING per le griglie dell'utente loggato
    */
   public static async getPendingForOwner(ownerId: number) {
-    return await UpdateDAO.findPendingByOwner(ownerId);
+    return await CollaborationRequestDAO.findPendingByOwner(ownerId);
   }
 
   /**
    * Verifica se una griglia ha richieste in sospeso
    */
   public static async checkGridStatus(gridId: number) {
-    const hasPending = await UpdateDAO.hasPendingRequests(gridId);
+    const hasPending = await CollaborationRequestDAO.hasPendingRequests(gridId);
     return {
       gridId,
       hasPendingUpdates: hasPending
@@ -38,7 +38,7 @@ export class UpdateService {
     // Validazione e conversione date tramite helper 
     const { start, end } = DateHelper.validateRange(startStr, endStr);
 
-    return await UpdateDAO.findByGridWithFilters(gridId, status, start as any, end as any);
+    return await CollaborationRequestDAO.findByGridWithFilters(gridId, status, start as any, end as any);
   }
 
   /**
@@ -96,7 +96,7 @@ export class UpdateService {
         };
       } else {
         // --- LOGICA COLLABORATORE: Creazione richiesta PENDING ---
-        await UpdateDAO.createRequest({
+        await CollaborationRequestDAO.createRequest({
           gridId: gridId,
           requesterId: userId,
           baseVersionId: lastVersion.id,
@@ -131,7 +131,7 @@ export class UpdateService {
     }
 
     // 1. Recuperiamo le richieste per verificare i permessi
-    const requests = await UpdateDAO.findByIds(requestIds);
+    const requests = await CollaborationRequestDAO.findByIds(requestIds);
 
     if (requests.length !== requestIds.length) {
       throw new NotFoundError('Una o più richieste non sono state trovate');
@@ -151,7 +151,7 @@ export class UpdateService {
     try {
       if (action === 'REJECT') {
         // Se rifiutiamo, aggiorniamo solo lo stato in blocco
-        await UpdateDAO.bulkUpdateStatus(requestIds, 'REJECTED', transaction);
+        await CollaborationRequestDAO.bulkUpdateStatus(requestIds, 'REJECTED', transaction);
       } else {
         // Se accettiamo, per ogni richiesta dobbiamo creare una nuova versione della griglia
         for (const req of requests) {
@@ -162,7 +162,7 @@ export class UpdateService {
           await GridDAO.createVersion(req.gridId, nextVersion, req.proposedData, transaction);
           
           // Aggiorniamo lo stato della singola richiesta
-          await UpdateDAO.bulkUpdateStatus([req.id], 'ACCEPTED', transaction);
+          await CollaborationRequestDAO.bulkUpdateStatus([req.id], 'ACCEPTED', transaction);
         }
       }
 
