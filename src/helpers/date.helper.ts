@@ -3,24 +3,25 @@ import { BadRequestError } from '../errors/AppError';
 export class DateHelper {
   
   /**
-   * Converte una stringa GG/MM/AAAA in un oggetto Date di JS
+   * Converte una stringa GG/MM/AAAA o GG-MM-AAAA in un oggetto Date di JS
    */
   public static parseItalianDate(dateStr: string): Date {
-    // Regex per verificare il formato GG/MM/AAAA
-    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    // Regex aggiornata: [/-] permette sia la slash che il trattino come separatore
+    const regex = /^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/;
     const match = dateStr.match(regex);
 
     if (!match) {
-      throw new BadRequestError(`Formato data non valido: ${dateStr}. Usa GG/MM/AAAA`);
+      // Se non combacia, diamo un errore che suggerisce entrambi i formati
+      throw new BadRequestError(`Formato data non valido: ${dateStr}. Usa GG/MM/AAAA oppure GG-MM-AAAA`);
     }
 
     const day = parseInt(match[1], 10);
-    const month = parseInt(match[2], 10) - 1; // I mesi in JS vanno da 0 a 11
+    const month = parseInt(match[2], 10) - 1; 
     const year = parseInt(match[3], 10);
 
     const date = new Date(year, month, day);
 
-    // Verifica se la data è semanticamente valida (es. no 31/02)
+    // Verifica semantica (es. no 31/02)
     if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
       throw new BadRequestError(`Data inesistente: ${dateStr}`);
     }

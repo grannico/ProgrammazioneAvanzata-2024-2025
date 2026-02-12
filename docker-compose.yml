@@ -4,6 +4,7 @@ services:
     container_name: pathfinding_db
     restart: always
     environment:
+      # Questi valori servono solo all'avvio del container DB
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: crowd_pathfinding
@@ -15,10 +16,7 @@ services:
     container_name: pathfinding_app
     ports:
       - "3000:3000"
-    # Abbiamo rimosso la sezione volumes per garantire che 
-    # l'app utilizzi solo il codice buildato dentro l'immagine.
-    environment:
-      - DB_URL=postgres://user:password@db:5432/crowd_pathfinding
-      - JWT_SECRET=cambiami_per_l_esame_2025
+    env_file:
+      - .env
     depends_on:
       - db

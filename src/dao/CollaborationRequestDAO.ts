@@ -16,7 +16,7 @@ export class CollaborationRequestDAO { // Rinominato da UpdateDAO
    */
   public static async findByGridWithFilters(
     gridId: number, 
-    status?: string, 
+    status?: string | string[], 
     startDate?: Date, // Accettiamo Date già processate dall'helper
     endDate?: Date
   ) {
@@ -24,6 +24,9 @@ export class CollaborationRequestDAO { // Rinominato da UpdateDAO
 
     // Filtro per stato (Accettato/Rigettato)
     if (status) {
+      // Sequelize gestirà automaticamente:
+      // - Se stringa: WHERE status = 'ACCEPTED'
+      // - Se array: WHERE status IN ('ACCEPTED', 'PENDING')
       whereCondition.status = status;
     }
 

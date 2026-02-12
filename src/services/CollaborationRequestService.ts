@@ -30,7 +30,7 @@ export class CollaborationRequestService { // Rinominato da UpdateService
   /**
    * Elenco storico aggiornamenti con filtri
    */
-  public static async getGridHistory(gridId: number, status?: string, startStr?: string, endStr?: string) {
+  public static async getGridHistory(gridId: number, status?: string | string[], startStr?: string, endStr?: string) {
     // Verifichiamo prima se la griglia esiste
     const grid = await GridDAO.findById(gridId);
     if (!grid) throw new NotFoundError('Griglia non trovata');

@@ -15,7 +15,7 @@ export class CollaborationRequestController { // Rinominato da UpdateController
 
       const history = await CollaborationRequestService.getGridHistory( // Aggiornato riferimento Service
         Number(id),
-        status as string,
+        status as string | string[],
         startDate as string,
         endDate as string
       );
