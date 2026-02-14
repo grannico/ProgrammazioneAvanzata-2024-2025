@@ -47,3 +47,10 @@ export class ConflictError extends AppError {
     super(message, 409);
   }
 }
+
+// 500 - Internal Server Error: Errori di configurazione o problemi generici del server
+export class InternalServerError extends AppError {
+  constructor(message: string = 'Errore interno del server') {
+    super(message, 500);
+  }
+}
