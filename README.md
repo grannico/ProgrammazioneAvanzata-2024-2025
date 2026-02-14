@@ -30,7 +30,7 @@ L'applicazione soddisfa i requisiti attraverso tre componenti principali:
     Il calcolo del percorso ottimo (implementato tramite algoritmo **A\***) non è gratuito, ma regolato da un sistema economico a **Token**. Ogni calcolo ha un costo computazionale simulato che viene addebitato al richiedente, regolando l'accesso al servizio in base alla disponibilità di credito e introducendo, di conseguenza, la necessità di un ruolo amministrativo per l'erogazione delle risorse.
 
 ###  Qualità del Software e Scelte Progettuali
-Il sistema è stato progettato con un forte orientamento verso **scalabilità, sicurezza e flessibilità**. LL'integrazione con Docker e la gestione non bloccante dell'I/O (tipica di Node.js) assicurano scalabilità e reattività del sistema, mentre l'integrità della piattaforma è protetta da autenticazione JWT e una validazione rigorosa dei dati in ingresso. Infine, l'adozione di pattern garantisce un codice pulito, manutenibile ed estensibile nel tempo.
+Il sistema è stato progettato con un forte orientamento verso **scalabilità, sicurezza e flessibilità**. L'integrazione con Docker e la gestione non bloccante dell'I/O (tipica di Node.js) assicurano scalabilità e reattività del sistema, mentre l'integrità della piattaforma è protetta da autenticazione JWT e una validazione rigorosa dei dati in ingresso. Infine, l'adozione di pattern garantisce un codice pulito, manutenibile ed estensibile nel tempo.
 
 ---
 
@@ -109,7 +109,7 @@ Il pattern comportamentale *Chain of Responsibility* è stato applicato in modo 
 
 ---
 
-## 4. Installazione e Avvio
+## 5. Installazione e Avvio
 
 Il sistema è interamente containerizzato tramite **Docker**, il che permette di avviare l'intero ecosistema in pochi istanti.
 
@@ -159,8 +159,8 @@ Questo comando provvederà a inserire nel database:
 
 --- 
 
-## 5. Test del progetto
-Il progetto include una serie di test automatizzati sviluppatti con **Jest** per garantire la robustezza della logica di business e l'integrità delle API. Per eseguire i test, utilizza il comando 
+## 6. Test del progetto
+Il progetto include una serie di test automatizzati sviluppati con **Jest** per garantire la robustezza della logica di business e l'integrità delle API. Per eseguire i test, utilizza il comando 
 
 ```bash
 docker-compose exec app npm test
