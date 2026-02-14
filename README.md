@@ -70,7 +70,7 @@ Per illustrare la gestione dei permessi a livello di singola risorsa, il seguent
 | `POST /api/grids/:id/path`<br>*(Calcolo Pathfinding A* e Gestione Token)* | ![Pathfinding](docs/images/pathfinding.png) |
 | `POST /api/collaboration-requests/bulk`<br>*(Approvazione/Rifiuto "Bulk" Richieste)* | ![Bulk Approval](docs/images/bulk_approval.png) |
 |`POST /api/admin/recharge`<br>*(Ricarica Token)*|![Token Recharge](docs/images/tokenrecharge.png)|
-
+|`Pipeline di Sicurezza`|![Auth Flow](docs/images/auth_flow.png)|
 
 ---
 
@@ -105,7 +105,7 @@ Per gestire in modo flessibile il calcolo dei token, è stato implementato un `C
 L'istanza di connessione al database PostgreSQL (tramite Sequelize) è gestita come un Singleton. Questo garantisce che l'intera applicazione condivida un unico pool di connessioni, ottimizzando le risorse del server ed evitando memory leaks. Questa scelta è motivata dalla necessità di prevenire l'apertura di connessioni multiple ridondanti, che saturerebbero rapidamente le risorse del database PostgreSQL.
 
 #### Chain of Responsibility 
-Il pattern comportamentale *Chain of Responsibility* è stato applicato in modo nativo tramite i middleware di Express.js. La pipeline di elaborazione delle richieste attraversa una catena di controlli indipendenti (es. parsing del body, validazione del token JWT in `authMiddleware`, intercettazione degli errori). Ogni anello della catena decide autonomamente se elaborare la richiesta, interromperla restituendo un codice di stato (es. 401, 403), o passarla al modulo successivo tramite la funzione `next()`. La motivazione principale è garantire il principio di "Single Responsibility": ogni middleware si occupa di un'unica validazione, rendendo la pipeline di sicurezza estremamente modulare e facile da estendere.
+Il pattern comportamentale *Chain of Responsibility* è stato applicato in modo nativo tramite i middleware di Express.js. La pipeline di elaborazione delle richieste attraversa una catena di controlli indipendenti (es. parsing del body, validazione del token JWT in `authMiddleware`, intercettazione degli errori). Ogni anello della catena decide autonomamente se elaborare la richiesta, interromperla restituendo un codice di stato (es. 401, 403), o passarla al modulo successivo tramite la funzione `next()`. La motivazione principale è garantire il principio di "Single Responsibility": ogni middleware si occupa di un'unica validazione, rendendo la pipeline di sicurezza estremamente modulare e facile da estendere. Per una visualizzazione tecnica di questo pattern, si rimanda al **Diagramma di Sequenza dell'Autenticazione** presente nella sezione UML.
 
 ---
 
