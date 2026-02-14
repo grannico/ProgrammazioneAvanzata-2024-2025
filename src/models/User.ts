@@ -1,3 +1,4 @@
+// src/models/User.ts
 import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, Default, AllowNull, Unique } from 'sequelize-typescript';
 
 @Table({
@@ -21,14 +22,20 @@ export class User extends Model {
 
   @Default('USER')
   @Column({
-  type: DataType.ENUM('USER', 'ADMIN'),
-  defaultValue: 'USER', // Di default, chi si registra è un utente semplice
-  allowNull: false
-})
-role!: 'USER' | 'ADMIN';
+    type: DataType.ENUM('USER', 'ADMIN'),
+    allowNull: false
+  })
+  role!: 'USER' | 'ADMIN';
 
-  @Default(100.0) // Saldo iniziale di cortesia
+  @Default(100.00) // Saldo iniziale di cortesia
   @AllowNull(false)
-  @Column(DataType.FLOAT)
+  @Column({
+    type: DataType.DECIMAL(10, 2), // Precisione fissa: 10 cifre totali, 2 decimali
+    get() {
+      // Converte il valore del DB (stringa) in numero per l'applicazione
+      const value = this.getDataValue('tokenBalance');
+      return value ? parseFloat(value) : 0;
+    }
+  })
   tokenBalance!: number;
 }
