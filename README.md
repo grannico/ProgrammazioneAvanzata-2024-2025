@@ -29,8 +29,8 @@ L'applicazione soddisfa i requisiti attraverso tre componenti principali:
 * **Valutazione e Token Economy:**
     Il calcolo del percorso ottimo (implementato tramite algoritmo **A\***) non è gratuito, ma regolato da un sistema economico a **Token**. Ogni calcolo ha un costo computazionale simulato che viene addebitato al richiedente, regolando l'accesso al servizio in base alla disponibilità di credito e introducendo, di conseguenza, la necessità di un ruolo amministrativo per l'erogazione delle risorse.
 
-###  Caratteristiche Architetturali
-Il sistema è stato progettato con un forte orientamento verso **scalabilità, sicurezza e flessibilità**. L'uso di Docker e dell'architettura asincrona assicura prestazioni elevate, mentre l'integrità della piattaforma è protetta da autenticazione JWT e una validazione rigorosa dei dati in ingresso. Infine, l'adozione di pattern garantisce un codice pulito, manutenibile ed estensibile nel tempo.
+###  Qualità del Software e Scelte Progettuali
+Il sistema è stato progettato con un forte orientamento verso **scalabilità, sicurezza e flessibilità**. LL'integrazione con Docker e la gestione non bloccante dell'I/O (tipica di Node.js) assicurano scalabilità e reattività del sistema, mentre l'integrità della piattaforma è protetta da autenticazione JWT e una validazione rigorosa dei dati in ingresso. Infine, l'adozione di pattern garantisce un codice pulito, manutenibile ed estensibile nel tempo.
 
 ---
 
@@ -49,14 +49,14 @@ Il sistema è stato progettato con un forte orientamento verso **scalabilità, s
 
 ## 3. Progettazione e UML
 
-Per modellare il comportamento del sistema e le interazioni dei vari componenti, sono stati realizzatai i diagrammi UML delle funzionalità princiali.
+Per modellare il comportamento del sistema e le interazioni dei vari componenti, sono stati realizzati i diagrammi UML delle funzionalità principali.
 
 ### Diagramma dei Casi d'Uso 
 Il diagramma seguente illustra le interazioni principali tra i due attori del sistema (**User** e **Admin**) e la piattaforma.
 
 ![Use Case Diagram](docs/images/usecase.png)
 
-Per illustrare la gestione dei permessi a livello di singola risorsa, iul seugente diagramma modella il flusso di Crowd-Sourcing. Evidenzia la biforcazione logica tra le azione consentite al Creatore della griglia (Owner) e quelle consentite agli altri utenti (Collaboratori)
+Per illustrare la gestione dei permessi a livello di singola risorsa, il seguente diagramma modella il flusso di Crowd-Sourcing. Evidenzia la biforcazione logica tra le azioni consentite al Creatore della griglia (Owner) e quelle consentite agli altri utenti (Collaboratori)
 
 ![Crowd Sourcing](docs/images/crowdsourcing_UC.png)
 
@@ -136,7 +136,7 @@ PORT=3000
 ```
 
 ### Esecuzione con Docker Compose
-Una volta configurate le variabili di ambiente, è possibile buildare le immaigini e avviare l'intero ecosistema con un unico comanda eseguito dalla `root` del progetto: 
+Una volta configurate le variabili di ambiente, è possibile buildare le immagini e avviare l'intero ecosistema con un unico comando eseguito dalla `root` del progetto: 
 
 ```bash
 docker-compose up --build
@@ -144,7 +144,7 @@ docker-compose up --build
 
 --- 
 
-## Popolamento del Databse (Seed)
+## Popolamento del Database (Seed)
 Al primo avvio, il database risulterà vuoto. Per poter testare immediatamente le funzionalità (come l'accesso dell'Amministratore o l'utilizzo delle griglie predefinite), è necessario eseguire lo script di seeding all'interno del container dell'applicazione:
 
 ```bash
@@ -160,7 +160,7 @@ Questo comando provvederà a inserire nel database:
 --- 
 
 ## 5. Test del progetto
-Il progetto include una serie di test automatizzati svilupatti con **Jest** per garantire la robustezza della logica di business e l'integrità delle API. Per eseguire i test, utilizza il comando 
+Il progetto include una serie di test automatizzati sviluppatti con **Jest** per garantire la robustezza della logica di business e l'integrità delle API. Per eseguire i test, utilizza il comando 
 
 ```bash
 docker-compose exec app npm test
@@ -168,7 +168,7 @@ docker-compose exec app npm test
 
 Attualmente, la suite comprende 11 test case suddivisi in 3 aree:
 
-* **AuthMiddleware** (`Authmiddleware.test.ts`): verifica il corretto funzionamento delle barriere di sicurezza, assicurandosi che le richieste senza token JWT valido o scaduto vengano respinte con un errore `Unauthorize`, e che i token validi estraggano correttamente i dati dell'utente.
+* **AuthMiddleware** (`Authmiddleware.test.ts`): verifica il corretto funzionamento delle barriere di sicurezza, assicurandosi che le richieste senza token JWT valido o scaduto vengano respinte con un errore `Unauthorized`, e che i token validi estraggano correttamente i dati dell'utente.
 
 * **PathfindingService** (`PathfindingService.test.ts`):
 controlla che il calcolo del percorso eviti gli ostacoli, gestisca correttamente coordinate fuori dai confini e, soprattutto, verifichi che i token dell'utente vengano scalati correttamente (bloccando l'operazione se il saldo è insufficiente).
@@ -197,8 +197,8 @@ Di seguito una panoramica degli endpoint disponibili e testabili tramite la Coll
 | Metodo | Endpoint | Descrizione | Autenticazione |
 | :--- | :--- | :--- | :--- |
 | **Auth & Users** | | | |
-| `POST` | `/api/auth/register` | Registrazione di un nuovo utente STANDARD | Nessuna |
-| `POST` | `/api/auth/login` | Autenticazione e rilascio del token JWT | Nessuna |
+| `POST` | `/api/auth/register` | Registrazione di un nuovo utente STANDARD | Public |
+| `POST` | `/api/auth/login` | Autenticazione e rilascio del token JWT | Public |
 | `GET`  | `/api/users/me` | Recupero profilo e saldo token dell'utente loggato | Bearer Token |
 | **Admin** | | | |
 | `POST` | `/api/admin/register-admin`| Creazione di un nuovo utente ADMIN | Admin |
